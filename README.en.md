@@ -11,17 +11,17 @@ Built for medicines where regularity matters: a missed or shifted dose can cause
 The app is available in English and Russian and follows your phone's language. On Android 13+ you can pick a separate language just for this app.
 
 <p>
-  <img src="docs/screenshots/today.png" width="240" alt="Today">
-  <img src="docs/screenshots/meds.png" width="240" alt="Medicines">
-  <img src="docs/screenshots/history.png" width="240" alt="History">
+  <img src="docs/screenshots/en/today.png" width="240" alt="Today">
+  <img src="docs/screenshots/en/meds.png" width="240" alt="Medicines">
+  <img src="docs/screenshots/en/history.png" width="240" alt="History">
 </p>
 <p>
-  <img src="docs/screenshots/edit.png" width="240" alt="Medicine editor">
-  <img src="docs/screenshots/settings.png" width="240" alt="Settings">
-  <img src="docs/screenshots/widget.png" width="240" alt="Widget">
+  <img src="docs/screenshots/en/edit.png" width="240" alt="Medicine editor">
+  <img src="docs/screenshots/en/settings.png" width="240" alt="Settings">
+  <img src="docs/screenshots/en/widget.png" width="240" alt="Widget">
 </p>
 
-*Screenshots show the Russian version with made-up data.*
+*Screenshots show made-up data.*
 
 ## Download
 
@@ -36,6 +36,8 @@ Get the APK from [Releases](../../releases/latest). Requires Android 12 or newer
 - Several medicines at the same time — one summary notification with a "Took all" button.
 - No medicine names on the lock screen.
 - Reminders survive a reboot and time zone changes.
+
+<img src="docs/screenshots/en/notification.png" width="480" alt="Notification with buttons">
 
 **Medicines**
 - Any number of medicines and doses per day.
@@ -54,6 +56,8 @@ Get the APK from [Releases](../../releases/latest). Requires Android 12 or newer
 - Themes: follow system, light, dark, black (AMOLED).
 - Accent color: from your wallpaper (Material You), 12 presets, or your own.
 - A home screen widget in four styles (ring and list, list, pills, ring only) that adapts to its size; you can mark a dose right from the widget.
+
+<img src="docs/screenshots/en/widget_pills.png" width="380" alt="Widget in the Pills style">
 
 ## Keep reminders from getting lost
 
