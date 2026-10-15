@@ -101,10 +101,10 @@ object Widget {
         val missed = intakes.filter { taken[it] == null && it.at <= now }
         val next = intakes.firstOrNull { taken[it] == null && it.at > now }
         return when {
-            intakes.isEmpty() -> "Сегодня приёмов нет"
-            missed.isNotEmpty() -> "Пора принять: ${missed.joinToString { it.at.fmt() }}"
-            next != null -> "Следующий в ${next.at.fmt()} · ${next.med.name}"
-            else -> "Всё выпито 🎉"
+            intakes.isEmpty() -> str(R.string.w_none)
+            missed.isNotEmpty() -> str(R.string.w_due, missed.joinToString { it.at.fmt() })
+            next != null -> str(R.string.w_next, next.at.fmt(), next.med.name)
+            else -> str(R.string.w_all_done)
         }
     }
 
@@ -127,7 +127,7 @@ object Widget {
             setTextViewText(R.id.widget_subtitle, s.subtitle)
             setTextColor(R.id.widget_subtitle, (if (s.alarm) cs.error else cs.onSurfaceVariant).toArgb())
             if (layout == R.layout.widget || layout == R.layout.widget_pills) {
-                setTextViewText(R.id.widget_title, if (ring || s.total == 0) "Сегодня" else "Сегодня · выпито $count")
+                setTextViewText(R.id.widget_title, if (ring || s.total == 0) str(R.string.tab_today) else str(R.string.w_title_count, count))
                 setTextColor(R.id.widget_title, cs.onSurface.toArgb())
             }
         }
@@ -155,7 +155,7 @@ object Widget {
                 setTextColor(R.id.row_time, (if (missed) cs.error else cs.primary).toArgb())
                 setTextViewText(R.id.row_name, i.med.name)
                 setTextColor(R.id.row_name, (if (t != null) text.copy(alpha = 0.6f) else text).toArgb())
-                val details = if (t != null) "выпито в ${t.fmt()}" else listOf(i.med.dose, i.med.note).filter { it.isNotBlank() }.joinToString(" · ")
+                val details = if (t != null) str(R.string.w_taken_at, t.fmt()) else listOf(i.med.dose, i.med.note).filter { it.isNotBlank() }.joinToString(" · ")
                 setTextViewText(R.id.row_dose, details)
                 setViewVisibility(R.id.row_dose, if (details.isEmpty()) View.GONE else View.VISIBLE)
                 setTextColor(R.id.row_dose, (if (missed) cs.onErrorContainer else cs.onSurfaceVariant).toArgb())

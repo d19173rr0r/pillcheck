@@ -13,7 +13,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 import java.util.UUID
 
 data class Med(
@@ -45,7 +44,7 @@ data class Med(
 
     val lowStock: Boolean get() = (daysLeft() ?: Int.MAX_VALUE) <= Store.LOW_STOCK_DAYS
 
-    fun stockText(): String? = stock?.let { s -> "осталось $s шт." + (daysLeft()?.let { ", примерно на $it ${daysWord(it)}" } ?: "") }
+    fun stockText(): String? = stock?.let { s -> str(R.string.stock_left, s) + (daysLeft()?.let { plural(R.plurals.stock_days, it) } ?: "") }
 
     fun scheduledOn(date: LocalDate): Boolean =
         !date.isBefore(start) && (end == null || !date.isAfter(end)) &&
@@ -187,9 +186,9 @@ object Store {
         val days = pastDays(c, meds, LocalDate.now(), limit)
         val s = stats(c, days)
         return buildString {
-            append("Приём лекарств")
+            append(str(R.string.report_title))
             if (days.isNotEmpty()) append(": ${days.last().first.dayMonth()} — ${days.first().first.dayMonth()}")
-            append("\n\nЛекарства:\n")
+            append("\n\n${str(R.string.report_meds)}\n")
             meds.forEach { m ->
                 append("• ${m.name}")
                 if (m.dose.isNotBlank()) append(", ${m.dose}")
@@ -198,20 +197,20 @@ object Store {
                 append("\n")
             }
             if (s.total > 0) {
-                append("\nВыпито ${s.done} из ${s.total} (${s.done * 100 / s.total}%)\n")
-                s.avgShift?.let { append("Среднее отклонение от графика: ${minutesText(it)}\n") }
+                append("\n${str(R.string.report_done, s.done, s.total, s.done * 100 / s.total)}\n")
+                s.avgShift?.let { append(str(R.string.report_avg, minutesText(it)) + "\n") }
             }
             val missed = days.flatMap { it.second }.filter { takenAt(c, it) == null }.reversed()
             if (missed.isNotEmpty()) {
-                append("\nПропущено:\n")
+                append("\n${str(R.string.report_missed)}\n")
                 missed.forEach { append("${it.at.toLocalDate().dayMonth()} ${it.at.fmt()} — ${it.med.name}\n") }
             }
-            append("\nПо дням:\n")
+            append("\n${str(R.string.report_by_day)}\n")
             days.reversed().forEach { (d, intakes) ->
                 append("${d.dayMonth()}: ")
                 append(intakes.joinToString("; ") { i ->
                     val t = takenAt(c, i)
-                    "${i.at.fmt()} ${i.med.name} " + if (t == null) "— пропущено" else "— ${t.fmt()}${shiftText(i.at, t)}"
+                    "${i.at.fmt()} ${i.med.name} " + if (t == null) str(R.string.report_missed_mark) else "— ${t.fmt()}${shiftText(i.at, t)}"
                 })
                 append("\n")
             }
@@ -247,15 +246,16 @@ fun LocalTime.fmt(): String = format(hhmm)
 fun LocalDateTime.fmt(): String = format(hhmm)
 
 fun DayOfWeek.short(): String =
-    getDisplayName(TextStyle.SHORT, Locale.getDefault()).replaceFirstChar { it.titlecase() }
+    getDisplayName(TextStyle.SHORT, appLocale()).replaceFirstChar { it.titlecase() }
 
-private val dayMonth = DateTimeFormatter.ofPattern("d MMMM")
+// Форматы дат создаются при каждом вызове: язык приложения может смениться без перезапуска.
+fun LocalDate.dayMonth(): String = format(DateTimeFormatter.ofPattern(str(R.string.fmt_day_month), appLocale()))
 
-fun LocalDate.dayMonth(): String = format(dayMonth)
+fun LocalDate.dayFull(): String = format(DateTimeFormatter.ofPattern(str(R.string.fmt_day_full), appLocale()))
 
 fun scheduleText(m: Med): String = when {
-    m.interval == 2 -> "через день"
-    m.days.size == 7 -> "каждый день"
+    m.interval == 2 -> str(R.string.schedule_alternate)
+    m.days.size == 7 -> str(R.string.schedule_daily)
     else -> DayOfWeek.entries.filter { it in m.days }.joinToString { it.short() }
 }
 
@@ -264,26 +264,18 @@ fun courseText(m: Med, today: LocalDate): String? {
     val days = m.courseDays ?: return null
     val end = m.end!!
     return when {
-        today.isBefore(m.start) -> "курс $days дн. с ${m.start.dayMonth()}"
-        today.isAfter(end) -> "курс завершён ${end.dayMonth()}"
-        today == end -> "последний день курса"
-        else -> "день ${ChronoUnit.DAYS.between(m.start, today) + 1} из $days, до ${end.dayMonth()}"
+        today.isBefore(m.start) -> str(R.string.course_future, days, m.start.dayMonth())
+        today.isAfter(end) -> str(R.string.course_done, end.dayMonth())
+        today == end -> str(R.string.course_last)
+        else -> str(R.string.course_progress, (ChronoUnit.DAYS.between(m.start, today) + 1).toInt(), days, end.dayMonth())
     }
-}
-
-/** 1 день, 2 дня, 5 дней, 21 день. */
-fun daysWord(n: Int): String = when {
-    n % 100 in 11..14 -> "дней"
-    n % 10 == 1 -> "день"
-    n % 10 in 2..4 -> "дня"
-    else -> "дней"
 }
 
 /** 47 → «47 мин», 130 → «2 ч 10 мин». */
 fun minutesText(m: Long): String = when {
-    m < 60 -> "$m мин"
-    m % 60 == 0L -> "${m / 60} ч"
-    else -> "${m / 60} ч ${m % 60} мин"
+    m < 60 -> str(R.string.min_short, m)
+    m % 60 == 0L -> str(R.string.hours_short, m / 60)
+    else -> str(R.string.hours_min, m / 60, m % 60)
 }
 
 /** Насколько приём сдвинулся от графика: « (+47 мин)», пусто если в пределах 5 минут. */

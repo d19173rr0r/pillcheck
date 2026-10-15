@@ -2,6 +2,10 @@ package app.pillcheck
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.border
@@ -46,14 +50,14 @@ fun SettingsScreen(version: Int) {
     fun save(new: ThemeSettings) = Themes.save(c, new)
     var customOpen by remember { mutableStateOf(false) }
 
-    Text("Настройки", style = MaterialTheme.typography.headlineMedium)
+    Text(str(R.string.tab_settings), style = MaterialTheme.typography.headlineMedium)
 
-    Text("Тема", style = MaterialTheme.typography.titleMedium)
+    Text(str(R.string.theme_title), style = MaterialTheme.typography.titleMedium)
     Column {
-        ThemeMode.entries.forEach { m -> Choice(m.title, s.mode == m) { save(s.copy(mode = m)) } }
+        ThemeMode.entries.forEach { m -> Choice(str(m.title), s.mode == m) { save(s.copy(mode = m)) } }
     }
 
-    Text("Цвет", style = MaterialTheme.typography.titleMedium)
+    Text(str(R.string.color_title), style = MaterialTheme.typography.titleMedium)
     FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Swatch(
             Brush.sweepGradient(listOf(Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047), Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFE53935))),
@@ -75,20 +79,20 @@ fun SettingsScreen(version: Int) {
     }
     Text(
         when {
-            s.accent == null -> "Цвета подбираются под обои"
-            s.accent in Themes.swatches -> "Нажми «+», чтобы выбрать свой цвет"
-            else -> "Свой цвет"
+            s.accent == null -> str(R.string.color_wallpaper)
+            s.accent in Themes.swatches -> str(R.string.color_pick_hint)
+            else -> str(R.string.color_custom)
         },
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 
-    Text("Виджет", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
+    Text(str(R.string.widget_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
     Column {
         WidgetStyle.entries.forEach { w ->
-            Choice(w.title, s.widgetStyle == w) { save(s.copy(widgetStyle = w)) }
+            Choice(str(w.title), s.widgetStyle == w) { save(s.copy(widgetStyle = w)) }
             Text(
-                w.hint,
+                str(w.hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 32.dp, bottom = 8.dp),
@@ -96,15 +100,14 @@ fun SettingsScreen(version: Int) {
         }
     }
     var alpha by remember(s.widgetAlpha) { mutableFloatStateOf(s.widgetAlpha.toFloat()) }
-    Text("Непрозрачность фона: ${alpha.toInt()}%")
+    Text(str(R.string.widget_opacity, alpha.toInt()))
     Slider(
         alpha, { alpha = it },
         valueRange = 0f..100f,
         onValueChangeFinished = { save(s.copy(widgetAlpha = alpha.toInt())) },
     )
     Text(
-        "Виджет можно растянуть: подержи его на рабочем столе и потяни за рамку. " +
-            "Маленький показывает только прогресс, большой — ещё и список, где можно отметить приём.",
+        str(R.string.widget_resize_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -113,7 +116,23 @@ fun SettingsScreen(version: Int) {
         OutlinedButton(
             onClick = { wm.requestPinAppWidget(ComponentName(c, WidgetProvider::class.java), null, null) },
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Добавить виджет на рабочий стол") }
+        ) { Text(str(R.string.widget_add)) }
+    }
+
+    // Выбор языка отдельно для приложения есть в системе с Android 13.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Text(str(R.string.language_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp))
+        Text(
+            str(R.string.language_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        OutlinedButton(
+            onClick = {
+                c.startActivity(Intent(Settings.ACTION_APP_LOCALE_SETTINGS, Uri.parse("package:${c.packageName}")))
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) { Text(str(R.string.language_button)) }
     }
 
     Backup()
@@ -152,21 +171,21 @@ private fun CustomColorDialog(initial: Int, onDismiss: () -> Unit, onPick: (Int)
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Свой цвет") },
+        title = { Text(str(R.string.color_custom)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                     Box(Modifier.size(72.dp).clip(CircleShape).background(color))
                 }
-                Text("Оттенок")
+                Text(str(R.string.hue))
                 Slider(h, { h = it }, valueRange = 0f..359f)
-                Text("Насыщенность")
+                Text(str(R.string.saturation))
                 Slider(sat, { sat = it }, valueRange = 0f..1f)
-                Text("Яркость")
+                Text(str(R.string.brightness))
                 Slider(v, { v = it }, valueRange = 0.2f..1f)
             }
         },
-        confirmButton = { TextButton(onClick = { onPick(color.toArgb()) }) { Text("Готово") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Отмена") } },
+        confirmButton = { TextButton(onClick = { onPick(color.toArgb()) }) { Text(str(R.string.btn_done)) } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(str(R.string.btn_cancel)) } },
     )
 }

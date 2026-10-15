@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Таблетки</string>
+    <string name="app_name_debug">Таблетки (debug)</string>
+    <string name="widget_label">Приёмы на сегодня</string>
+    <string name="widget_description">Приёмы на сегодня — отмечай прямо с рабочего стола</string>
+
+    <string name="tab_today">Сегодня</string>
+    <string name="tab_meds">Лекарства</string>
+    <string name="tab_history">История</string>
+    <string name="tab_settings">Настройки</string>
+    <string name="fmt_day_month">d MMMM</string>
+    <string name="fmt_day_full">d MMMM, EEEE</string>
+
+    <string name="min_short">%1$d мин</string>
+    <string name="hours_short">%1$d ч</string>
+    <string name="hours_min">%1$d ч %2$d мин</string>
+    <string name="stock_left">осталось %1$d шт.</string>
+    <plurals name="stock_days">
+        <item quantity="one">, примерно на %d день</item>
+        <item quantity="few">, примерно на %d дня</item>
+        <item quantity="many">, примерно на %d дней</item>
+        <item quantity="other">, примерно на %d дня</item>
+    </plurals>
+    <string name="schedule_daily">каждый день</string>
+    <string name="schedule_alternate">через день</string>
+    <string name="course_future">курс %1$d дн. с %2$s</string>
+    <string name="course_done">курс завершён %1$s</string>
+    <string name="course_last">последний день курса</string>
+    <string name="course_progress">день %1$d из %2$d, до %3$s</string>
+
+    <string name="report_title">Приём лекарств</string>
+    <string name="report_meds">Лекарства:</string>
+    <string name="report_done">Выпито %1$d из %2$d (%3$d%%)</string>
+    <string name="report_avg">Среднее отклонение от графика: %1$s</string>
+    <string name="report_missed">Пропущено:</string>
+    <string name="report_by_day">По дням:</string>
+    <string name="report_missed_mark">— пропущено</string>
+
+    <string name="channel_name">Приём лекарств</string>
+    <string name="notif_due">время приёма %1$s</string>
+    <string name="notif_late">опоздание %1$s, напомню через %2$d мин</string>
+    <string name="notif_buy">⚠️ Пора купить: %1$s</string>
+    <string name="action_taken">Выпил ✅</string>
+    <string name="action_snooze">Через %1$d мин</string>
+    <string name="summary_title">Пора принять: %1$d шт.</string>
+    <string name="action_taken_all">Выпил всё ✅</string>
+    <string name="notif_public">Пора принять лекарство</string>
+
+    <string name="empty_meds">Добавь лекарства, и приложение будет напоминать о каждом приёме.</string>
+    <string name="add_med">Добавить лекарство</string>
+    <string name="low_stock">Заканчивается «%1$s»: %2$s. Пора купить.</string>
+    <string name="set_new_stock">Указать новый остаток</string>
+    <string name="no_doses_today">Сегодня приёмов нет.</string>
+    <string name="took_all_missed">Выпил все пропущенные (%1$d)</string>
+    <string name="status_taken">✅ Выпито в %1$s%2$s</string>
+    <string name="status_missed">❌ Пропущено</string>
+    <string name="status_late">⏰ Опоздание %1$s</string>
+    <string name="yesterday">вчера</string>
+    <string name="btn_taken">Выпил</string>
+    <string name="btn_undo">Отменить</string>
+    <string name="warn_notifications">Уведомления выключены — напоминаний не будет.</string>
+    <string name="warn_notifications_action">Включить</string>
+    <string name="warn_exact">Нет разрешения на точные напоминания — они могут опаздывать на несколько минут.</string>
+    <string name="warn_exact_action">Разрешить</string>
+    <string name="warn_battery">Система может усыпить приложение и пропустить напоминание.</string>
+    <string name="warn_battery_action">Снять ограничение</string>
+
+    <string name="add_med_plus">+ Добавить лекарство</string>
+    <string name="backup_title">Резервная копия</string>
+    <string name="backup_hint">Лекарства и вся история в одном файле — сохрани его в облако или отправь себе, чтобы перенести на новый телефон.</string>
+    <string name="backup_file_name">таблетки-%1$s.json</string>
+    <string name="backup_saved">Копия сохранена</string>
+    <string name="backup_save_failed">Не удалось сохранить: %1$s</string>
+    <string name="backup_restored">Данные восстановлены</string>
+    <string name="backup_bad_file">Это не похоже на резервную копию приложения</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="btn_restore">Восстановить</string>
+    <string name="restore_title">Восстановить из файла?</string>
+    <string name="restore_text">Текущие лекарства и история заменятся данными из копии.</string>
+    <string name="btn_choose_file">Выбрать файл</string>
+    <string name="btn_cancel">Отмена</string>
+
+    <string name="btn_back">← Назад</string>
+    <string name="editor_new">Новое лекарство</string>
+    <string name="editor_edit">Изменить</string>
+    <string name="field_name">Название</string>
+    <string name="field_dose">Доза</string>
+    <string name="field_dose_hint">например, 1 таблетка или 50 мг</string>
+    <string name="field_note">Заметка</string>
+    <string name="field_note_hint">например, до еды, запивать водой</string>
+    <string name="times_title">Время приёма</string>
+    <string name="add_time">+ Добавить время</string>
+    <string name="freq_title">Как часто?</string>
+    <string name="freq_daily">Каждый день</string>
+    <string name="freq_alternate">Через день</string>
+    <string name="freq_weekdays">По дням недели</string>
+    <string name="weekdays_hint">Отметь дни, в которые нужно пить:</string>
+    <string name="duration_title">Сколько пить?</string>
+    <string name="duration_forever">Постоянно</string>
+    <string name="duration_course">Курсом — определённое число дней</string>
+    <string name="course_days">Дней в курсе</string>
+    <string name="start_from">Начать с</string>
+    <string name="today_lower">сегодня</string>
+    <string name="last_day">Последний день: %1$s</string>
+    <string name="track_stock">Следить за остатком</string>
+    <string name="track_stock_hint">Напомню купить, когда останется на %1$d дней</string>
+    <string name="stock_now">Сейчас есть, шт.</string>
+    <string name="per_dose">За приём, шт.</string>
+    <string name="err_name">Введи название.</string>
+    <string name="err_times">Добавь хотя бы одно время приёма.</string>
+    <string name="err_days">Отметь хотя бы один день.</string>
+    <string name="err_course">Укажи, сколько дней длится курс.</string>
+    <string name="err_stock">Укажи, сколько штук сейчас есть.</string>
+    <string name="err_per_dose">Укажи, сколько штук за один приём.</string>
+    <string name="btn_delete">Удалить</string>
+    <string name="delete_title">Удалить «%1$s»?</string>
+    <string name="delete_text">Напоминания о нём прекратятся.</string>
+
+    <plurals name="streak">
+        <item quantity="one">🔥 %d день без пропусков</item>
+        <item quantity="few">🔥 %d дня без пропусков</item>
+        <item quantity="many">🔥 %d дней без пропусков</item>
+        <item quantity="other">🔥 %d дня без пропусков</item>
+    </plurals>
+    <string name="streak_none">Серия без пропусков пока не началась</string>
+    <plurals name="stats_period">
+        <item quantity="one">За %1$d день: выпито %2$d из %3$d (%4$d%%)</item>
+        <item quantity="few">За %1$d дня: выпито %2$d из %3$d (%4$d%%)</item>
+        <item quantity="many">За %1$d дней: выпито %2$d из %3$d (%4$d%%)</item>
+        <item quantity="other">За %1$d дня: выпито %2$d из %3$d (%4$d%%)</item>
+    </plurals>
+    <string name="avg_shift">В среднем отклонение от графика — %1$s</string>
+    <string name="share_report">Отправить отчёт</string>
+    <string name="send_to_doctor">📤 Отправить отчёт врачу</string>
+    <string name="history_empty">Здесь появятся прошлые дни.</string>
+    <string name="history_day">%1$s — %2$d из %3$d</string>
+
+    <string name="theme_title">Тема</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="theme_black">Чёрная (AMOLED)</string>
+    <string name="color_title">Цвет</string>
+    <string name="color_wallpaper">Цвета подбираются под обои</string>
+    <string name="color_pick_hint">Нажми «+», чтобы выбрать свой цвет</string>
+    <string name="color_custom">Свой цвет</string>
+    <string name="hue">Оттенок</string>
+    <string name="saturation">Насыщенность</string>
+    <string name="brightness">Яркость</string>
+    <string name="btn_done">Готово</string>
+    <string name="widget_title">Виджет</string>
+    <string name="ws_ring_list">Кольцо и список</string>
+    <string name="ws_ring_list_hint">прогресс и все приёмы с кнопками</string>
+    <string name="ws_list">Список</string>
+    <string name="ws_list_hint">приёмы с галочками: что выпито, что ещё ждёт</string>
+    <string name="ws_pills">Таблетки</string>
+    <string name="ws_pills_hint">ряд капсул: выпитые закрашены, нажми на капсулу — отметится</string>
+    <string name="ws_ring">Только кольцо</string>
+    <string name="ws_ring_hint">сколько выпито и когда следующий</string>
+    <string name="widget_opacity">Непрозрачность фона: %1$d%%</string>
+    <string name="widget_resize_hint">Виджет можно растянуть: подержи его на рабочем столе и потяни за рамку. Маленький показывает только прогресс, большой — ещё и список, где можно отметить приём.</string>
+    <string name="widget_add">Добавить виджет на рабочий стол</string>
+    <string name="language_title">Язык</string>
+    <string name="language_hint">Приложение на языке телефона. Можно выбрать отдельный язык только для него.</string>
+    <string name="language_button">Выбрать язык приложения</string>
+
+    <string name="w_none">Сегодня приёмов нет</string>
+    <string name="w_due">Пора принять: %1$s</string>
+    <string name="w_next">Следующий в %1$s · %2$s</string>
+    <string name="w_all_done">Всё выпито 🎉</string>
+    <string name="w_title_count">Сегодня · выпито %1$s</string>
+    <string name="w_taken_at">выпито в %1$s</string>
+</resources>

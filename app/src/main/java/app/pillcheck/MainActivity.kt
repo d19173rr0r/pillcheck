@@ -89,11 +89,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private enum class Tab(val title: String, val icon: String) {
-    TODAY("Сегодня", "📅"),
-    MEDS("Лекарства", "💊"),
-    HISTORY("История", "📊"),
-    SETTINGS("Настройки", "⚙️"),
+private enum class Tab(val title: Int, val icon: String) {
+    TODAY(R.string.tab_today, "📅"),
+    MEDS(R.string.tab_meds, "💊"),
+    HISTORY(R.string.tab_history, "📊"),
+    SETTINGS(R.string.tab_settings, "⚙️"),
 }
 
 @Composable
@@ -114,7 +114,7 @@ private fun App(version: Int) {
                     selected = tab == t,
                     onClick = { tab = t },
                     icon = { Text(t.icon) },
-                    label = { Text(t.title) },
+                    label = { Text(str(t.title)) },
                 )
             }
         }

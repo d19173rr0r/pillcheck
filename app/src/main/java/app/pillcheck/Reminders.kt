@@ -37,7 +37,7 @@ object Reminders {
         // Настройки канала после создания не меняются — для новой вибрации нужен новый канал.
         nm.deleteNotificationChannel("doses")
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Приём лекарств", NotificationManager.IMPORTANCE_HIGH).apply {
+            NotificationChannel(CHANNEL, str(R.string.channel_name), NotificationManager.IMPORTANCE_HIGH).apply {
                 enableVibration(true)
                 vibrationPattern = longArrayOf(0, 700, 300, 700, 300, 700)
             }
@@ -95,12 +95,12 @@ object Reminders {
 
     private fun notification(c: Context, i: Intake, now: LocalDateTime, alert: Boolean): Notification {
         val late = Duration.between(i.at, now).toMinutes()
-        val timing = if (late < 1) "время приёма ${i.at.fmt()}"
-        else "опоздание ${minutesText(late)}, напомню через ${Store.NAG_MINUTES} мин"
+        val timing = if (late < 1) str(R.string.notif_due, i.at.fmt())
+        else str(R.string.notif_late, minutesText(late), Store.NAG_MINUTES)
         val lines = listOfNotNull(
             listOf(i.med.dose, timing).filter { it.isNotBlank() }.joinToString(" · "),
             i.med.note.ifBlank { null },
-            i.med.stockText()?.takeIf { i.med.lowStock }?.let { "⚠️ Пора купить: $it" },
+            i.med.stockText()?.takeIf { i.med.lowStock }?.let { str(R.string.notif_buy, it) },
         )
         return builder(c)
             .setContentTitle(i.med.name)
@@ -112,8 +112,8 @@ object Reminders {
             // Тихое обновление уже висящего уведомления не должно снова всплывать поверх экрана.
             .setOnlyAlertOnce(!alert)
             .setGroup(GROUP)
-            .addAction(0, "Выпил ✅", broadcast(c, ACTION_TAKEN, i.key))
-            .addAction(0, "Через ${Store.SNOOZE_MINUTES} мин", broadcast(c, ACTION_SNOOZE, i.key))
+            .addAction(0, str(R.string.action_taken), broadcast(c, ACTION_TAKEN, i.key))
+            .addAction(0, str(R.string.action_snooze, Store.SNOOZE_MINUTES), broadcast(c, ACTION_SNOOZE, i.key))
             .build()
     }
 
@@ -125,7 +125,7 @@ object Reminders {
                 .putExtra("keys", shown.map { it.key }.toTypedArray()),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        val title = "Пора принять: ${shown.size} шт."
+        val title = str(R.string.summary_title, shown.size)
         return builder(c)
             .setContentTitle(title)
             .setContentText(shown.joinToString { it.med.name })
@@ -133,7 +133,7 @@ object Reminders {
             .setGroup(GROUP)
             .setGroupSummary(true)
             .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
-            .addAction(0, "Выпил всё ✅", all)
+            .addAction(0, str(R.string.action_taken_all), all)
             .build()
     }
 
@@ -141,7 +141,7 @@ object Reminders {
         // На экране блокировки — без названий лекарств.
         val public = NotificationCompat.Builder(c, CHANNEL)
             .setSmallIcon(R.drawable.ic_pill)
-            .setContentTitle("Пора принять лекарство")
+            .setContentTitle(str(R.string.notif_public))
             .build()
         return NotificationCompat.Builder(c, CHANNEL)
             .setSmallIcon(R.drawable.ic_pill)

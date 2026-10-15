@@ -60,36 +60,34 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-private val dayFmt = DateTimeFormatter.ofPattern("d MMMM, EEEE")
-
 @Composable
 fun TodayScreen(version: Int, onAdd: () -> Unit, onEdit: (Med) -> Unit) {
     val c = LocalContext.current
     val meds = remember(version) { Store.meds(c) }
     val now = LocalDateTime.now()
 
-    Text("Сегодня", style = MaterialTheme.typography.headlineMedium)
-    Text(now.format(dayFmt), color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Text(str(R.string.tab_today), style = MaterialTheme.typography.headlineMedium)
+    Text(now.toLocalDate().dayFull(), color = MaterialTheme.colorScheme.onSurfaceVariant)
     Warnings()
 
     if (meds.isEmpty()) {
-        Text("Добавь лекарства, и приложение будет напоминать о каждом приёме.")
-        Button(onClick = onAdd, Modifier.fillMaxWidth()) { Text("Добавить лекарство") }
+        Text(str(R.string.empty_meds))
+        Button(onClick = onAdd, Modifier.fillMaxWidth()) { Text(str(R.string.add_med)) }
         return
     }
     meds.filter { it.lowStock }.forEach { m ->
-        Warning("Заканчивается «${m.name}»: ${m.stockText()}. Пора купить.", "Указать новый остаток") { onEdit(m) }
+        Warning(str(R.string.low_stock, m.name, m.stockText() ?: ""), str(R.string.set_new_stock)) { onEdit(m) }
     }
 
     val pending = Store.pending(c, meds, now)
     val leftFromYesterday = pending.filter { it.at.toLocalDate() < now.toLocalDate() }
     val today = Store.intakesOn(meds, now.toLocalDate())
     if (leftFromYesterday.isEmpty() && today.isEmpty()) {
-        Text("Сегодня приёмов нет.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(str(R.string.no_doses_today), color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
     if (pending.size >= 2) {
         Button(onClick = { pending.forEach { Store.setTaken(c, it.key, true) } }, Modifier.fillMaxWidth()) {
-            Text("Выпил все пропущенные (${pending.size})")
+            Text(str(R.string.took_all_missed, pending.size))
         }
     }
     (leftFromYesterday + today).forEach { IntakeCard(it, now) }
@@ -101,10 +99,10 @@ private fun IntakeCard(i: Intake, now: LocalDateTime) {
     val taken = Store.takenAt(c, i)
     val late = Duration.between(i.at, now).toMinutes()
     val status = when {
-        taken != null -> "✅ Выпито в ${taken.fmt()}${shiftText(i.at, taken)}"
+        taken != null -> str(R.string.status_taken, taken.fmt(), shiftText(i.at, taken))
         late < 0 -> null
-        late >= Store.GIVE_UP_HOURS * 60 -> "❌ Пропущено"
-        else -> "⏰ Опоздание ${minutesText(late)}"
+        late >= Store.GIVE_UP_HOURS * 60 -> str(R.string.status_missed)
+        else -> str(R.string.status_late, minutesText(late))
     }
     val yesterday = i.at.toLocalDate() < now.toLocalDate()
     Card(Modifier.fillMaxWidth()) {
@@ -117,7 +115,7 @@ private fun IntakeCard(i: Intake, now: LocalDateTime) {
             Column(Modifier.weight(1f)) {
                 Text(i.med.name, style = MaterialTheme.typography.titleMedium)
                 val details = listOfNotNull(
-                    "вчера".takeIf { yesterday },
+                    str(R.string.yesterday).takeIf { yesterday },
                     i.med.dose.ifBlank { null },
                     courseText(i.med, i.at.toLocalDate()),
                 )
@@ -128,9 +126,9 @@ private fun IntakeCard(i: Intake, now: LocalDateTime) {
                 status?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
             }
             if (taken == null) {
-                Button(onClick = { Store.setTaken(c, i.key, true) }) { Text("Выпил") }
+                Button(onClick = { Store.setTaken(c, i.key, true) }) { Text(str(R.string.btn_taken)) }
             } else {
-                TextButton(onClick = { Store.setTaken(c, i.key, false) }) { Text("Отменить") }
+                TextButton(onClick = { Store.setTaken(c, i.key, false) }) { Text(str(R.string.btn_undo)) }
             }
         }
     }
@@ -143,17 +141,17 @@ private fun Warnings() {
     val pkg = Uri.parse("package:${c.packageName}")
     // Работает на любой версии Android и ловит и запрет разрешения, и выключенные в настройках уведомления.
     if (!c.getSystemService(NotificationManager::class.java).areNotificationsEnabled()) {
-        Warning("Уведомления выключены — напоминаний не будет.", "Включить") {
+        Warning(str(R.string.warn_notifications), str(R.string.warn_notifications_action)) {
             c.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, c.packageName))
         }
     }
     if (!c.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()) {
-        Warning("Нет разрешения на точные напоминания — они могут опаздывать на несколько минут.", "Разрешить") {
+        Warning(str(R.string.warn_exact), str(R.string.warn_exact_action)) {
             c.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, pkg))
         }
     }
     if (!c.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(c.packageName)) {
-        Warning("Система может усыпить приложение и пропустить напоминание.", "Снять ограничение") {
+        Warning(str(R.string.warn_battery), str(R.string.warn_battery_action)) {
             c.startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, pkg))
         }
     }
@@ -174,7 +172,7 @@ fun MedsScreen(version: Int, onEdit: (Med) -> Unit) {
     val c = LocalContext.current
     val meds = remember(version) { Store.meds(c) }
 
-    Text("Лекарства", style = MaterialTheme.typography.headlineMedium)
+    Text(str(R.string.tab_meds), style = MaterialTheme.typography.headlineMedium)
     meds.forEach { m ->
         Card(onClick = { onEdit(m) }, modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp)) {
@@ -199,7 +197,7 @@ fun MedsScreen(version: Int, onEdit: (Med) -> Unit) {
             }
         }
     }
-    Button(onClick = { onEdit(Med()) }, Modifier.fillMaxWidth()) { Text("+ Добавить лекарство") }
+    Button(onClick = { onEdit(Med()) }, Modifier.fillMaxWidth()) { Text(str(R.string.add_med_plus)) }
 }
 
 /** Сохранение всех данных в файл и восстановление — чтобы перенести на новый телефон. */
@@ -210,39 +208,39 @@ fun Backup() {
     val save = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         runCatching { c.contentResolver.openOutputStream(uri)!!.use { it.write(Store.exportJson(c).toByteArray()) } }
-            .onSuccess { toast("Копия сохранена") }
-            .onFailure { toast("Не удалось сохранить: ${it.message}") }
+            .onSuccess { toast(str(R.string.backup_saved)) }
+            .onFailure { toast(str(R.string.backup_save_failed, it.message ?: "")) }
     }
     val restore = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         uri ?: return@rememberLauncherForActivityResult
         runCatching { Store.importJson(c, c.contentResolver.openInputStream(uri)!!.use { it.readBytes().decodeToString() }) }
-            .onSuccess { toast("Данные восстановлены") }
-            .onFailure { toast("Это не похоже на резервную копию приложения") }
+            .onSuccess { toast(str(R.string.backup_restored)) }
+            .onFailure { toast(str(R.string.backup_bad_file)) }
     }
     var confirmRestore by remember { mutableStateOf(false) }
 
-    Text("Резервная копия", style = MaterialTheme.typography.titleMedium)
+    Text(str(R.string.backup_title), style = MaterialTheme.typography.titleMedium)
     Text(
-        "Лекарства и вся история в одном файле — сохрани его в облако или отправь себе, чтобы перенести на новый телефон.",
+        str(R.string.backup_hint),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(onClick = { save.launch("таблетки-${LocalDate.now()}.json") }, Modifier.weight(1f)) { Text("Сохранить") }
-        OutlinedButton(onClick = { confirmRestore = true }, Modifier.weight(1f)) { Text("Восстановить") }
+        OutlinedButton(onClick = { save.launch(str(R.string.backup_file_name, LocalDate.now().toString())) }, Modifier.weight(1f)) { Text(str(R.string.btn_save)) }
+        OutlinedButton(onClick = { confirmRestore = true }, Modifier.weight(1f)) { Text(str(R.string.btn_restore)) }
     }
     if (confirmRestore) {
         AlertDialog(
             onDismissRequest = { confirmRestore = false },
-            title = { Text("Восстановить из файла?") },
-            text = { Text("Текущие лекарства и история заменятся данными из копии.") },
+            title = { Text(str(R.string.restore_title)) },
+            text = { Text(str(R.string.restore_text)) },
             confirmButton = {
                 TextButton(onClick = {
                     confirmRestore = false
                     restore.launch(arrayOf("application/json", "application/octet-stream", "text/plain"))
-                }) { Text("Выбрать файл") }
+                }) { Text(str(R.string.btn_choose_file)) }
             },
-            dismissButton = { TextButton(onClick = { confirmRestore = false }) { Text("Отмена") } },
+            dismissButton = { TextButton(onClick = { confirmRestore = false }) { Text(str(R.string.btn_cancel)) } },
         )
     }
 }
@@ -280,31 +278,31 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
         Modifier.fillMaxSize().safeDrawingPadding().imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        TextButton(onClick = onDone) { Text("← Назад") }
-        Text(if (isNew) "Новое лекарство" else "Изменить", style = MaterialTheme.typography.headlineMedium)
+        TextButton(onClick = onDone) { Text(str(R.string.btn_back)) }
+        Text(str(if (isNew) R.string.editor_new else R.string.editor_edit), style = MaterialTheme.typography.headlineMedium)
 
         OutlinedTextField(
             name, { name = it },
-            label = { Text("Название") },
+            label = { Text(str(R.string.field_name)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             dose, { dose = it },
-            label = { Text("Доза") },
-            placeholder = { Text("например, 1 таблетка или 50 мг") },
+            label = { Text(str(R.string.field_dose)) },
+            placeholder = { Text(str(R.string.field_dose_hint)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
             note, { note = it },
-            label = { Text("Заметка") },
-            placeholder = { Text("например, до еды, запивать водой") },
+            label = { Text(str(R.string.field_note)) },
+            placeholder = { Text(str(R.string.field_note_hint)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
 
-        Text("Время приёма", style = MaterialTheme.typography.titleMedium)
+        Text(str(R.string.times_title), style = MaterialTheme.typography.titleMedium)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             times.forEach { t ->
                 InputChip(
@@ -321,16 +319,16 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
                         times = (times + LocalTime.of(h, m)).distinct().sorted()
                     }, suggest.hour, suggest.minute, true).show()
                 },
-                label = { Text("+ Добавить время") },
+                label = { Text(str(R.string.add_time)) },
             )
         }
 
-        Text("Как часто?", style = MaterialTheme.typography.titleMedium)
+        Text(str(R.string.freq_title), style = MaterialTheme.typography.titleMedium)
         Column {
-            Freq.entries.forEach { f -> Choice(f.title, freq == f) { freq = f } }
+            Freq.entries.forEach { f -> Choice(str(f.title), freq == f) { freq = f } }
         }
         if (freq == Freq.WEEKDAYS) {
-            Text("Отметь дни, в которые нужно пить:", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(str(R.string.weekdays_hint), color = MaterialTheme.colorScheme.onSurfaceVariant)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DayOfWeek.entries.forEach { d ->
                     FilterChip(
@@ -345,39 +343,39 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
             }
         }
 
-        Text("Сколько пить?", style = MaterialTheme.typography.titleMedium)
+        Text(str(R.string.duration_title), style = MaterialTheme.typography.titleMedium)
         Column {
-            Choice("Постоянно", !isCourse) { isCourse = false }
-            Choice("Курсом — определённое число дней", isCourse) { isCourse = true }
+            Choice(str(R.string.duration_forever), !isCourse) { isCourse = false }
+            Choice(str(R.string.duration_course), isCourse) { isCourse = true }
         }
         if (isCourse) {
             OutlinedTextField(
                 courseText, { v -> courseText = v.filter(Char::isDigit).take(4) },
-                label = { Text("Дней в курсе") },
+                label = { Text(str(R.string.course_days)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
             )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Начать с", Modifier.weight(1f))
+            Text(str(R.string.start_from), Modifier.weight(1f))
             TextButton(onClick = {
                 DatePickerDialog(c, { _, y, m, d -> start = LocalDate.of(y, m + 1, d) },
                     start.year, start.monthValue - 1, start.dayOfMonth).show()
-            }) { Text(if (start == LocalDate.now()) "сегодня" else start.dayMonth()) }
+            }) { Text(if (start == LocalDate.now()) str(R.string.today_lower) else start.dayMonth()) }
         }
         if (isCourse && courseDays != null) {
             Text(
-                "Последний день: ${start.plusDays(courseDays - 1L).dayMonth()}",
+                str(R.string.last_day, start.plusDays(courseDays - 1L).dayMonth()),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("Следить за остатком", style = MaterialTheme.typography.titleMedium)
+                Text(str(R.string.track_stock), style = MaterialTheme.typography.titleMedium)
                 Text(
-                    "Напомню купить, когда останется на ${Store.LOW_STOCK_DAYS} дней",
+                    str(R.string.track_stock_hint, Store.LOW_STOCK_DAYS),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -388,14 +386,14 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     stockText, { v -> stockText = v.filter(Char::isDigit).take(5) },
-                    label = { Text("Сейчас есть, шт.") },
+                    label = { Text(str(R.string.stock_now)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
                 )
                 OutlinedTextField(
                     perDoseText, { v -> perDoseText = v.filter(Char::isDigit).take(3) },
-                    label = { Text("За приём, шт.") },
+                    label = { Text(str(R.string.per_dose)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.weight(1f),
@@ -404,12 +402,12 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
         }
 
         val problem = when {
-            name.isBlank() -> "Введи название."
-            times.isEmpty() -> "Добавь хотя бы одно время приёма."
-            freq == Freq.WEEKDAYS && days.isEmpty() -> "Отметь хотя бы один день."
-            isCourse && courseDays == null -> "Укажи, сколько дней длится курс."
-            trackStock && stock == null -> "Укажи, сколько штук сейчас есть."
-            trackStock && perDose == null -> "Укажи, сколько штук за один приём."
+            name.isBlank() -> str(R.string.err_name)
+            times.isEmpty() -> str(R.string.err_times)
+            freq == Freq.WEEKDAYS && days.isEmpty() -> str(R.string.err_days)
+            isCourse && courseDays == null -> str(R.string.err_course)
+            trackStock && stock == null -> str(R.string.err_stock)
+            trackStock && perDose == null -> str(R.string.err_per_dose)
             else -> null
         }
         Button(
@@ -432,33 +430,33 @@ fun MedEditor(initial: Med, onDone: () -> Unit) {
             },
             enabled = problem == null,
             modifier = Modifier.fillMaxWidth(),
-        ) { Text("Сохранить") }
+        ) { Text(str(R.string.btn_save)) }
         problem?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         if (!isNew) {
-            OutlinedButton(onClick = { confirmDelete = true }, Modifier.fillMaxWidth()) { Text("Удалить") }
+            OutlinedButton(onClick = { confirmDelete = true }, Modifier.fillMaxWidth()) { Text(str(R.string.btn_delete)) }
         }
     }
 
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Удалить «${initial.name}»?") },
-            text = { Text("Напоминания о нём прекратятся.") },
+            title = { Text(str(R.string.delete_title, initial.name)) },
+            text = { Text(str(R.string.delete_text)) },
             confirmButton = {
                 TextButton(onClick = {
                     Store.deleteMed(c, initial.id)
                     onDone()
-                }) { Text("Удалить") }
+                }) { Text(str(R.string.btn_delete)) }
             },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Отмена") } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(str(R.string.btn_cancel)) } },
         )
     }
 }
 
-private enum class Freq(val title: String) {
-    DAILY("Каждый день"),
-    ALTERNATE("Через день"),
-    WEEKDAYS("По дням недели"),
+private enum class Freq(val title: Int) {
+    DAILY(R.string.freq_daily),
+    ALTERNATE(R.string.freq_alternate),
+    WEEKDAYS(R.string.freq_weekdays),
 }
 
 /** Строка с радиокнопкой; нажимается вся целиком. */
@@ -479,7 +477,7 @@ fun HistoryScreen(version: Int) {
     val meds = remember(version) { Store.meds(c) }
     val today = LocalDate.now()
 
-    Text("История", style = MaterialTheme.typography.headlineMedium)
+    Text(str(R.string.tab_history), style = MaterialTheme.typography.headlineMedium)
     val days = Store.pastDays(c, meds, today, 30)
     val streak = Store.streak(c, meds, today)
     val stats = Store.stats(c, days)
@@ -487,35 +485,35 @@ fun HistoryScreen(version: Int) {
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                if (streak > 0) "🔥 $streak ${daysWord(streak)} без пропусков" else "Серия без пропусков пока не началась",
+                if (streak > 0) plural(R.plurals.streak, streak) else str(R.string.streak_none),
                 style = MaterialTheme.typography.titleMedium,
             )
             if (stats.total > 0) {
-                Text("За ${days.size} ${daysWord(days.size)}: выпито ${stats.done} из ${stats.total} (${stats.done * 100 / stats.total}%)")
-                stats.avgShift?.let { Text("В среднем отклонение от графика — ${minutesText(it)}") }
+                Text(plural(R.plurals.stats_period, days.size, days.size, stats.done, stats.total, stats.done * 100 / stats.total))
+                stats.avgShift?.let { Text(str(R.string.avg_shift, minutesText(it))) }
             }
             TextButton(onClick = {
                 c.startActivity(
                     Intent.createChooser(
                         Intent(Intent.ACTION_SEND).setType("text/plain")
-                            .putExtra(Intent.EXTRA_SUBJECT, "Приём лекарств")
+                            .putExtra(Intent.EXTRA_SUBJECT, str(R.string.report_title))
                             .putExtra(Intent.EXTRA_TEXT, Store.report(c)),
-                        "Отправить отчёт",
+                        str(R.string.share_report),
                     )
                 )
-            }) { Text("📤 Отправить отчёт врачу") }
+            }) { Text(str(R.string.send_to_doctor)) }
         }
     }
 
     if (days.isEmpty()) {
-        Text("Здесь появятся прошлые дни.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(str(R.string.history_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
         return
     }
     days.forEach { (d, intakes) ->
         val done = intakes.count { Store.takenAt(c, it) != null }
         Column(Modifier.padding(top = 8.dp)) {
             Text(
-                "${d.format(dayFmt)} — $done из ${intakes.size}",
+                str(R.string.history_day, d.dayFull(), done, intakes.size),
                 style = MaterialTheme.typography.titleSmall,
                 color = if (done == intakes.size) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             )

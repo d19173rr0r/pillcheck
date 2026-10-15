@@ -11,16 +11,16 @@ android {
         applicationId = "app.pillcheck"
         minSdk = 31
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0"
-        manifestPlaceholders["appLabel"] = "Таблетки"
+        versionCode = 2
+        versionName = "1.1"
+        manifestPlaceholders["appLabel"] = "@string/app_name"
     }
 
     buildTypes {
         debug {
             // Отладочная сборка ставится рядом с основной и не трогает её данные.
             applicationIdSuffix = ".debug"
-            manifestPlaceholders["appLabel"] = "Таблетки (debug)"
+            manifestPlaceholders["appLabel"] = "@string/app_name_debug"
         }
         release {
             // Сжатие кода и ресурсов: APK весит в разы меньше отладочного.

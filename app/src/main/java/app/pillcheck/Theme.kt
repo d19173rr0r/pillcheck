@@ -10,18 +10,18 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import androidx.core.graphics.ColorUtils
 
-enum class WidgetStyle(val title: String, val hint: String) {
-    RING_LIST("Кольцо и список", "прогресс и все приёмы с кнопками"),
-    LIST("Список", "приёмы с галочками: что выпито, что ещё ждёт"),
-    PILLS("Таблетки", "ряд капсул: выпитые закрашены, нажми на капсулу — отметится"),
-    RING("Только кольцо", "сколько выпито и когда следующий"),
+enum class WidgetStyle(val title: Int, val hint: Int) {
+    RING_LIST(R.string.ws_ring_list, R.string.ws_ring_list_hint),
+    LIST(R.string.ws_list, R.string.ws_list_hint),
+    PILLS(R.string.ws_pills, R.string.ws_pills_hint),
+    RING(R.string.ws_ring, R.string.ws_ring_hint),
 }
 
-enum class ThemeMode(val title: String) {
-    SYSTEM("Как в системе"),
-    LIGHT("Светлая"),
-    DARK("Тёмная"),
-    BLACK("Чёрная (AMOLED)"),
+enum class ThemeMode(val title: Int) {
+    SYSTEM(R.string.theme_system),
+    LIGHT(R.string.theme_light),
+    DARK(R.string.theme_dark),
+    BLACK(R.string.theme_black),
 }
 
 data class ThemeSettings(
