@@ -109,6 +109,8 @@ object Reminders {
             .setWhen(i.at.millis())
             .setShowWhen(true)
             .setSilent(!alert)
+            // Тихое обновление уже висящего уведомления не должно снова всплывать поверх экрана.
+            .setOnlyAlertOnce(!alert)
             .setGroup(GROUP)
             .addAction(0, "Выпил ✅", broadcast(c, ACTION_TAKEN, i.key))
             .addAction(0, "Через ${Store.SNOOZE_MINUTES} мин", broadcast(c, ACTION_SNOOZE, i.key))

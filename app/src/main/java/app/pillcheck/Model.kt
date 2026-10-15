@@ -45,7 +45,7 @@ data class Med(
 
     val lowStock: Boolean get() = (daysLeft() ?: Int.MAX_VALUE) <= Store.LOW_STOCK_DAYS
 
-    fun stockText(): String? = stock?.let { s -> "осталось $s шт." + (daysLeft()?.let { ", примерно на $it дн." } ?: "") }
+    fun stockText(): String? = stock?.let { s -> "осталось $s шт." + (daysLeft()?.let { ", примерно на $it ${daysWord(it)}" } ?: "") }
 
     fun scheduledOn(date: LocalDate): Boolean =
         !date.isBefore(start) && (end == null || !date.isAfter(end)) &&

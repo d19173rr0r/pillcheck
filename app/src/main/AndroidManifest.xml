@@ -9,7 +9,7 @@
 
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="Таблетки"
+        android:label="${appLabel}"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 
         <activity

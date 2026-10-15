@@ -13,9 +13,15 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["appLabel"] = "Таблетки"
     }
 
     buildTypes {
+        debug {
+            // Отладочная сборка ставится рядом с основной и не трогает её данные.
+            applicationIdSuffix = ".debug"
+            manifestPlaceholders["appLabel"] = "Таблетки (debug)"
+        }
         release {
             // Сжатие кода и ресурсов: APK весит в разы меньше отладочного.
             isMinifyEnabled = true
