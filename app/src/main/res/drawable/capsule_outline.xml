@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Пустая капсула: только контур. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="44dp"
+    android:height="26dp"
+    android:viewportWidth="44"
+    android:viewportHeight="26">
+    <path
+        android:pathData="M13,1.2H31A11.8,11.8 0,0 1,31 24.8H13A11.8,11.8 0,0 1,13 1.2Z"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FFFFFFFF" />
+</vector>

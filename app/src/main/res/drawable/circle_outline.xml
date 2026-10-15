@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Пустой кружок: только контур. Вектор, а не shape, — shape при tint заливается целиком. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="34dp"
+    android:height="34dp"
+    android:viewportWidth="34"
+    android:viewportHeight="34">
+    <path
+        android:pathData="M17,2.5a14.5,14.5 0,1 0,0.01 0z"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FFFFFFFF" />
+</vector>
